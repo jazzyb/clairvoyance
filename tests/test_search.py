@@ -19,7 +19,7 @@ class GDLGameTree(AbstractGameTree):
     def terminal(self):
         return self.fsm.is_terminal()
 
-    def heuristic(self, player):
+    def utility(self, player):
         return float(self.fsm.score(player))
 
     def moves(self):

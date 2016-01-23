@@ -8,8 +8,8 @@ class AbstractGameTree(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def heuristic(self, player):
-        '''Return a heuristic (between 0.0 and 100.0) for player.'''
+    def utility(self, player):
+        '''Return player's utility (between 0.0 and 100.0) for this state.'''
         pass
 
     @abstractmethod

@@ -20,7 +20,7 @@ def minimax(state, players, depth=-1, return_score=False, maxplayer=None):
     '''
     maxplayer = maxplayer or players[0]
     if depth == 0 or state.terminal():
-        return state.heuristic(maxplayer)
+        return state.utility(maxplayer)
 
     player = players[0]
     players = players[1:] + [player]
@@ -60,7 +60,7 @@ def alphabeta(state, player, depth=-1, return_score=False,
     Return the best move for player.
     '''
     if depth == 0 or state.terminal():
-        return state.heuristic(player)
+        return state.utility(player)
 
     best_move = None
     if maximize_player:
