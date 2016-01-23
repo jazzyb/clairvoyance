@@ -1,4 +1,4 @@
-def minimax(self, state, players, depth=-1, return_scores=False):
+def minimax(state, players, depth=-1, return_scores=False):
     '''Run a minimax search on the current game state.
 
     This algorithm supports N-players with the following assumptions:
@@ -14,7 +14,7 @@ def minimax(self, state, players, depth=-1, return_scores=False):
 
     Return the best move for players[0].
     '''
-    if depth == 0 or self.terminal():
+    if depth == 0 or state.terminal():
         return state.heuristics()
 
     player = players.pop(0)
@@ -23,5 +23,5 @@ def minimax(self, state, players, depth=-1, return_scores=False):
     for move in state.moves():
         scores = minimax(state.next(move), players, depth - 1, True)
         if best_scores is None or scores[player] > best_scores[player]:
-            best, best_move = scores, move
+            best_scores, best_move = scores, move
     return best_scores if return_scores else best_move[player]
