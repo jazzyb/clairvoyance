@@ -1,27 +1,36 @@
-def minimax(state, players, depth=-1, return_scores=False):
+def minimax(state, players, depth=-1, return_score=False, maxplayer=None):
     '''Run a minimax search on the current game state.
 
     This algorithm supports N-players with the following assumptions:
-    * Players will make the move with the best utility for themselves.
+    * Opponents will make the move with the worst utility for maxplayer.
     * Players do NOT move simultaneously.
 
     Arguments:
     state -- an AbstractGameTree
     players -- a list of all the players
     depth -- the distance in the tree to search (default=-1)
-    return_scores -- if True, then return the best scores rather than the
-        best move
+    return_score -- if True, then return the best score instead of the best move
+    maxplayer -- the player whose score is being maximized for
 
-    Return the best move for players[0].
+    Return the best move for maxplayer.
     '''
+    maxplayer = maxplayer or players[0]
     if depth == 0 or state.terminal():
-        return state.heuristics()
+        return state.heuristic(maxplayer)
 
-    player = players.pop(0)
-    players.append(player)
-    best_scores = best_move = None
-    for move in state.moves():
-        scores = minimax(state.next(move), players, depth - 1, True)
-        if best_scores is None or scores[player] > best_scores[player]:
-            best_scores, best_move = scores, move
-    return best_scores if return_scores else best_move[player]
+    player = players[0]
+    players = players[1:] + [player]
+    best_move = None
+    if player == maxplayer:
+        best_score = 0.0
+        for move in state.moves():
+            score = minimax(state.next(move), players, depth - 1, True, maxplayer)
+            if score > best_score:
+                best_score, best_move = score, move
+    else:
+        best_score = 100.0
+        for move in state.moves():
+            score = minimax(state.next(move), players, depth - 1, True, maxplayer)
+            if score < best_score:
+                best_score, best_move = score, move
+    return best_score if return_score else best_move[player]

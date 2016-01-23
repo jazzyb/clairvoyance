@@ -3,19 +3,24 @@ from clairvoyance.game_tree import AbstractGameTree
 from clairvoyance.search import minimax
 from gdl import StateMachine
 
+
 class GDLGameTree(AbstractGameTree):
-    def __init__(self, players, kiffile=None):
-        if kiffile:
-            self.fsm = StateMachine()
-            with open(kiffile, 'r') as f:
-                self.fsm.store(file=f)
+    def __init__(self, kiffile, players, fsm=None):
+        self.kiffile = kiffile
         self.players = players
+        self.fsm = fsm
+
+    def start(self):
+        if self.fsm is None:
+            self.fsm = StateMachine()
+            with open(self.kiffile, 'r') as f:
+                self.fsm.store(file=f)
 
     def terminal(self):
         return self.fsm.is_terminal()
 
-    def heuristics(self):
-        return self.fsm.score()
+    def heuristic(self, player):
+        return float(self.fsm.score(player))
 
     def moves(self):
         moves = self.fsm.legal()
@@ -34,21 +39,21 @@ class GDLGameTree(AbstractGameTree):
         return ret
 
     def next(self, move):
-        next = GDLGameTree(self.players[1:] + [self.players[0]])
-        for player in move:
-            self.fsm.move(player, move[player])
-        next.fsm = self.fsm.next()
+        next = GDLGameTree(self.kiffile, self.players, self.fsm)
+        next.update(move)
         return next
 
     def update(self, move):
         for player in move:
             self.fsm.move(player, move[player])
         self.fsm = self.fsm.next()
+        self.players = self.players[1:] + [self.players[0]]
 
 class TestMinimaxPuzzle(unittest.TestCase):
-    def test_minimax(self):
+    def test_solo_puzzle(self):
         players = ['player']
-        state = GDLGameTree(players, 'puzzles/8-puzzle.kif')
+        state = GDLGameTree('puzzles/8-puzzle.kif', players)
+        state.start()
         self.assertEqual('(move 1 2)', minimax(state, players))
         state.update({'player': '(move 1 2)'})
         self.assertEqual('(move 2 2)', minimax(state, players))
@@ -74,3 +79,18 @@ class TestMinimaxPuzzle(unittest.TestCase):
         ]
         for i in results:
             self.assertIn(i, db)
+
+class TestMinimaxGame(unittest.TestCase):
+    def test_oplayer_tic_tac_toe(self):
+        players = ['oplayer', 'xplayer']
+        state = GDLGameTree('games/tic-tac-toe.kif', players[::-1])
+        state.start()
+        state.update({'xplayer': '(mark 2 2)', 'oplayer': 'noop'})
+        move = minimax(state, players)
+        self.assertNotIn(move, ('(mark 1 2)', '(mark 2 1)', '(mark 2 3)', '(mark 3 2)'))
+        state.update({'oplayer': '(mark 1 1)', 'xplayer': 'noop'})
+        state.update({'xplayer': '(mark 2 1)', 'oplayer': 'noop'})
+        state.update({'oplayer': '(mark 2 3)', 'xplayer': 'noop'})
+        state.update({'xplayer': '(mark 3 1)', 'oplayer': 'noop'})
+        self.assertEqual('(mark 1 3)', minimax(state, players))
+        self.assertEqual(100.0, minimax(state, players, -1, True))

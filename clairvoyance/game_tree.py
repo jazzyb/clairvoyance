@@ -8,10 +8,8 @@ class AbstractGameTree(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def heuristics(self):
-        '''Return a heuristic (between 0.0 and 100.0) for each player for the
-        current state.  Return value is a dict of {player: score}.
-        '''
+    def heuristic(self, player):
+        '''Return a heuristic (between 0.0 and 100.0) for player.'''
         pass
 
     @abstractmethod
