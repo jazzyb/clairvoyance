@@ -1,6 +1,6 @@
 import unittest
 from clairvoyance.game_tree import AbstractGameTree
-from clairvoyance.search import minimax
+from clairvoyance.search import alphabeta, minimax
 from gdl import StateMachine
 
 
@@ -97,3 +97,18 @@ class TestMinimaxGame(unittest.TestCase):
         state.update({'xplayer': '(mark 3 1)', 'oplayer': 'noop'})
         self.assertEqual('(mark 1 3)', minimax(state, players))
         self.assertEqual(100.0, minimax(state, players, -1, True))
+
+class TestAlphabetaGame(unittest.TestCase):
+    def test_oplayer_tic_tac_toe(self):
+        players = ['oplayer', 'xplayer']
+        state = GDLGameTree('games/tic-tac-toe.kif', players[::-1])
+        state.start()
+        state.update({'xplayer': '(mark 2 2)', 'oplayer': 'noop'})
+        move = alphabeta(state, players[0])
+        self.assertNotIn(move, ('(mark 1 2)', '(mark 2 1)', '(mark 2 3)', '(mark 3 2)'))
+        state.update({'oplayer': '(mark 1 1)', 'xplayer': 'noop'})
+        state.update({'xplayer': '(mark 2 1)', 'oplayer': 'noop'})
+        state.update({'oplayer': '(mark 2 3)', 'xplayer': 'noop'})
+        state.update({'xplayer': '(mark 3 1)', 'oplayer': 'noop'})
+        self.assertEqual('(mark 1 3)', alphabeta(state, players[0]))
+        self.assertEqual(100.0, alphabeta(state, players[0], -1, True))
