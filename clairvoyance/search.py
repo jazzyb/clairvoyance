@@ -1,3 +1,7 @@
+from clairvoyance.memoization import memoize
+
+
+@memoize
 def minimax(state, players, depth=-1, return_score=False, maxplayer=None):
     '''Run a minimax search on the current game state.
 

@@ -27,7 +27,7 @@ class AbstractGameTree(metaclass=ABCMeta):
         '''
         pass
 
-#    TODO:  For memoization later.
-#    @abstractmethod
-#    def __hash__(self):
-#        pass
+    @abstractmethod
+    def __hash__(self):
+        '''Hash the state to support memoization.'''
+        pass
