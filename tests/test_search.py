@@ -50,7 +50,7 @@ class GDLGameTree(AbstractGameTree):
         self.players = self.players[1:] + [self.players[0]]
 
     def __hash__(self):
-        return hash(self.fsm)
+        return hash(self.kiffile) ^ hash(self.fsm)
 
 class TestMinimaxPuzzle(unittest.TestCase):
     def test_solo_puzzle(self):
