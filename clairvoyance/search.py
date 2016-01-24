@@ -1,3 +1,4 @@
+import random
 from clairvoyance.memoization import memoize
 
 
@@ -37,7 +38,11 @@ def minimax(state, players, depth=-1, return_score=False, maxplayer=None):
             score = minimax(state.next(move), players, depth - 1, True, maxplayer)
             if score < best_score:
                 best_score, best_move = score, move
-    return best_score if return_score else best_move[player]
+    if return_score:
+        return best_score
+    if best_move:
+        return best_move[player]
+    return state.moves()[0][player]
 
 
 @memoize
@@ -81,4 +86,28 @@ def alphabeta(state, player, depth=-1, return_score=False,
             beta = min(beta, best_score)
             if beta <= alpha:
                 break
-    return best_score if return_score else best_move[player]
+    if return_score:
+        return best_score
+    if best_move:
+        return best_move[player]
+    return state.moves()[0][player]
+
+
+def montecarlo(state, player, probes=1):
+    '''Run a Monte Carlo search on the current game state.
+
+    Arguments:
+    state -- an AbstractGameTree
+    player -- player to calculate utility for
+    probes -- number of paths to average the utility over
+
+    Return the estimated utility of the state averaged over the probes.
+    '''
+    if state.terminal():
+        return state.utility(player)
+
+    total = 0
+    moves = state.moves()
+    for _ in range(probes):
+        total += montecarlo(state.next(random.choice(moves)), player)
+    return total / probes

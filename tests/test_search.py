@@ -1,6 +1,6 @@
 import unittest
 from clairvoyance.game_tree import AbstractGameTree
-from clairvoyance.search import alphabeta, minimax
+from clairvoyance.search import alphabeta, minimax, montecarlo
 from gdl import StateMachine
 
 
@@ -20,7 +20,12 @@ class GDLGameTree(AbstractGameTree):
         return self.fsm.is_terminal()
 
     def utility(self, player):
-        return float(self.fsm.score(player))
+        value = self.fsm.score(player)
+        if value is not None:
+            return float(value)
+        else:
+            # estimate the utility of the non-terminal node
+            return montecarlo(self, player, 5)
 
     def moves(self):
         moves = self.fsm.legal()
@@ -112,3 +117,22 @@ class TestAlphabetaGame(unittest.TestCase):
         state.update({'xplayer': '(mark 3 1)', 'oplayer': 'noop'})
         self.assertEqual('(mark 1 3)', alphabeta(state, players[0]))
         self.assertEqual(100.0, alphabeta(state, players[0], -1, True))
+
+# Uncomment to play around with Monte Carlo search below:
+#
+#def fast_choice(state, player):
+#    best_move = None
+#    best_score = 0.0
+#    for move in state.moves():
+#        print(move)
+#        score = montecarlo(state.next(move), player, 5)
+#        print(score)
+#        if score > best_score:
+#            best_score, best_move = score, move
+#    return best_move[player]
+#
+#class TestMonteCarloEstimation(unittest.TestCase):
+#    def test_connect_4(self):
+#        state = GDLGameTree('games/connect-4.kif', ['red', 'black'])
+#        state.start()
+#        print(fast_choice(state, 'red'))
